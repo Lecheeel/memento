@@ -17,3 +17,5 @@ config.txt
 server/config.json
 server/*.log
 server/storage/
+*.jks
+keystore.properties

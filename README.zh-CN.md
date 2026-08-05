@@ -4,6 +4,7 @@
   <img src="https://img.shields.io/badge/Encryption-AES--256--GCM%20%2B%20HMAC-orange" alt="Encryption">
   <img src="https://img.shields.io/badge/Self--hosted-100%25%20private-brightgreen" alt="Self-hosted">
   <img src="https://img.shields.io/badge/PRs-welcome-important" alt="PRs welcome">
+  <img src="https://img.shields.io/badge/License-MIT-yellow" alt="MIT License">
 </p>
 
 <p align="center"><a href="README.md">English</a> · <b>中文</b></p>

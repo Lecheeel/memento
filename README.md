@@ -1,69 +1,115 @@
-# Memento
+<p align="center">
+  <img src="https://img.shields.io/badge/Android-Kotlin-3DDC84?logo=android&logoColor=white" alt="Android">
+  <img src="https://img.shields.io/badge/Server-Node.js%20%7C%20zero--deps-339933?logo=nodedotjs&logoColor=white" alt="Node.js">
+  <img src="https://img.shields.io/badge/Encryption-AES--256--GCM%20%2B%20HMAC-orange" alt="Encryption">
+  <img src="https://img.shields.io/badge/Self--hosted-100%25%20private-brightgreen" alt="Self-hosted">
+  <img src="https://img.shields.io/badge/PRs-welcome-important" alt="PRs welcome">
+</p>
 
-Memento 是一个自用的安卓通知采集项目。它会把手机通知整理后上传到服务器，再交给后端的 AI 做语义分析、总结和记忆整理。
+<p align="center"><b>English</b> · <a href="README.zh-CN.md">中文</a></p>
 
-## 项目组成
+<h1 align="center">📲 Memento</h1>
 
-- `app/`：安卓客户端，负责通知采集、过滤、加密和上传
-- `server/`：Node 服务端，负责接收并保存清洗后的通知数据
+<p align="center"><b>Turn every phone notification into context your AI never forgets.</b></p>
 
-## 主要能力
-
-- 采集安卓通知
-- 白名单 / 黑名单过滤
-- 通知加密上传
-- 按包名分目录、按天分文件保存
-- 可选保活与开机恢复
-
-## 当前状态
-
-- 安卓包名：`com.lecheeel.memento`
-- 服务端：HTTP 接收，适合内网和自用环境
-- 目标场景：个人知识整理、记忆归档、思路回溯
-
-## 运行说明
-
-1. 安装安卓应用
-2. 授予通知访问权限
-3. 配置服务器地址与密钥
-4. 在设置页选择需要采集的应用
-
-## 说明
-
-本项目当前以自用为主，默认不追求公开分发的复杂权限收敛。
+<p align="center">
+  Memento captures your Android notifications, encrypts them end-to-end, and streams them
+  to your own server — building a <b>privacy-first, AI-ready memory pipeline</b> from the
+  most authentic data stream on your device: what your apps actually tell you.
+</p>
 
 ---
 
-# Memento
+## ✨ Why Memento?
 
-Memento is a personal Android notification capture project. It collects mobile notifications, uploads them to a server, and lets the backend AI handle semantic analysis, summarization, and memory organization.
+Your notifications are a real-time diary of your life: payments, messages, reminders, app
+activity. Most notification tools either **sell your data** or **lock it in a silo**.
+Memento gives you:
 
-## Components
+- 🔐 **End-to-end encryption** — AES-256-GCM payloads + HMAC-signed envelopes. Your server never sees plaintext on the wire.
+- 🏠 **100% self-hosted** — a single Node.js file, zero dependencies, runs on anything (Raspberry Pi, VPS, old laptop).
+- 🧠 **AI-ready output** — clean, structured, per-app / per-day JSON that LLMs, agents, and memory systems (like Mem0) can consume directly.
+- 📡 **Real-time capture** — Android's NotificationListenerService feeds events the moment they appear.
+- 🔋 **Battery-friendly** — lightweight collector with optional keep-alive and boot recovery.
 
-- `app/`: Android client for capture, filtering, encryption, and upload
-- `server/`: Node server for receiving and storing cleaned notification data
+> Think of it as a **notification harness for your AI memory**: your phone produces the
+> context, Memento transports it safely, and your LLM / agent / knowledge base turns it
+> into something you can actually recall.
 
-## Features
+## 🏗️ Architecture
 
-- Android notification capture
-- Whitelist / blacklist filtering
-- Encrypted upload
-- Per-package folders and per-day files
-- Optional keep-alive and boot recovery
+```mermaid
+graph LR
+    subgraph "📱 Your Phone"
+        A["Memento Android App<br/>(NotificationListenerService)"]
+    end
+    subgraph "🏠 Your Server (self-hosted)"
+        B["Memento Server<br/>Node.js · zero deps"]
+        C[("Storage<br/>per-app / per-day JSON")]
+    end
+    subgraph "🧠 Your AI Layer"
+        D["LLM / Agent / Memory<br/>(Mem0, RAG, ...)"]
+    end
+    A -->|"🔒 encrypted + signed"| B
+    B --> C
+    C -->|"clean structured data"| D
+```
 
-## Current Status
+## 🚀 Quick Start
 
-- Android package name: `com.lecheeel.memento`
-- Server: HTTP ingestion, suitable for LAN and personal use
-- Use case: personal memory archive, thought tracking, and recall
+### One-line server install (~30 seconds, idempotent)
 
-## Run Steps
+```bash
+curl -fsSL https://raw.githubusercontent.com/Lecheeel/memento/main/server/install.sh | sudo bash -s 49033
+```
 
-1. Install the Android app
-2. Grant notification access
-3. Configure server URL and secret
-4. Choose which apps to capture in settings
+What it does:
+1. Downloads the server (`index.mjs` — a single file, no dependencies, Node.js ≥ 18)
+2. Generates pairing keys (`deviceToken` + `encryptionSecret`), or **preserves existing ones** on re-run
+3. Installs a hardened systemd service (`memento.service`) with auto-start
+4. Runs a self-check and prints your Android pairing info
 
-## Note
+> 💡 Re-running the script is safe: your keys and data are kept, only the code is updated.
+> Change the port anytime: `sudo bash install.sh 8080`
 
-This project is currently optimized for personal use rather than public distribution.
+### Android app
+
+1. Clone and build the app (`app/`, Kotlin):
+   ```bash
+   git clone https://github.com/Lecheeel/memento.git
+   cd memento/app && ./gradlew assembleDebug
+   ```
+2. Install the APK, grant **Notification access**.
+3. Enter your server URL, `deviceToken`, and `encryptionSecret` (printed by the installer).
+4. Pick which apps to capture (whitelist / blacklist).
+
+## 🔧 Server API
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/health` | GET | Liveness check → `{"ok": true}` |
+| `/ingest` | POST | Receive encrypted notification envelopes |
+| `/events?limit=N` | GET | Query recent events (max 200) |
+
+## 🛡️ Security & Privacy
+
+- **HMAC-SHA256** signature on every envelope (replay-resistant via timestamp + clock-skew check)
+- **AES-256-GCM** payload encryption — only your `encryptionSecret` can decrypt
+- **No third-party services**: nothing leaves your infrastructure
+- Request body capped (64 KB) and storage is plain JSON on your own disk
+
+## 🗺️ Roadmap
+
+- [ ] Server code modularization (currently a single-file design by choice)
+- [ ] iOS / desktop collectors
+- [ ] Webhook / MCP connectors for AI agents
+- [ ] Built-in LLM summarization pipeline
+
+## 🤝 Contributing
+
+PRs are welcome! Please follow [Conventional Commits](https://www.conventionalcommits.org/).
+Ideas, bugs, and feature requests → [Issues](https://github.com/Lecheeel/memento/issues).
+
+## 📄 License
+
+MIT — feel free to use, fork, and build on it.

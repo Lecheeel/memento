@@ -1,3 +1,5 @@
+> 📖 Full project docs: [English](../README.md) · [中文](../README.zh-CN.md)
+
 # Memento Server
 
 Minimal self-hosted ingest service for the Memento Android app.

@@ -1,0 +1,9 @@
+{
+  "bindHost": "0.0.0.0",
+  "port": 8080,
+  "storageDir": "./storage",
+  "deviceToken": "replace-with-device-token",
+  "encryptionSecret": "replace-with-encryption-secret",
+  "maxBodyBytes": 65536,
+  "allowedClockSkewMs": 300000
+}

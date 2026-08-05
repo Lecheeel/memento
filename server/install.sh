@@ -26,6 +26,20 @@ APP_OWNER="${SUDO_USER:-$(whoami)}"
 SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"   # 脚本所在目录（server/）
 REPO_ROOT="$(cd "${SRC_DIR}/.." && pwd)"
 
+# 远程模式：`curl ... | bash` 管道执行时没有本地文件，自动从 GitHub 拉取 server 文件
+REMOTE_TMP=""
+if [ "${BASH_SOURCE[0]:-}" = "-" ] || [ ! -f "${SRC_DIR}/index.mjs" ]; then
+  echo "==> [0/6] 远程模式：从 GitHub 下载 server 文件"
+  command -v curl >/dev/null 2>&1 || { echo "错误: 远程安装需要 curl"; exit 1; }
+  REMOTE_TMP="$(mktemp -d)"
+  BASE_URL="https://raw.githubusercontent.com/Lecheeel/memento/main/server"
+  for f in index.mjs config.example.json package.json README.md; do
+    curl -fsSL -o "${REMOTE_TMP}/${f}" "${BASE_URL}/${f}" || { echo "错误: 下载 ${f} 失败"; exit 1; }
+  done
+  SRC_DIR="${REMOTE_TMP}"
+  trap 'rm -rf "${REMOTE_TMP}"' EXIT
+fi
+
 echo "==> [1/6] 环境检查"
 command -v node >/dev/null 2>&1 || { echo "错误: 需要 Node.js >= 18"; exit 1; }
 command -v openssl >/dev/null 2>&1 || { echo "错误: 需要 openssl"; exit 1; }

@@ -198,7 +198,8 @@ function classifyEvent(event) {
   const appLabel = String(event.appLabel ?? '').toLowerCase();
   const combined = `${packageName} ${appLabel} ${event.title ?? ''} ${event.text ?? ''} ${event.subText ?? ''}`.toLowerCase();
 
-  if (isAnyMatch(packageName, ['com.android', 'android', 'com.miui', 'com.xiaomi', 'com.google.android'])) {
+  const systemPrefixes = ['com.android.', 'android.', 'com.miui.', 'com.xiaomi.', 'com.google.android.'];
+  if (packageName === 'android' || systemPrefixes.some((prefix) => packageName.startsWith(prefix))) {
     return 'system';
   }
   if (isAnyMatch(combined, [

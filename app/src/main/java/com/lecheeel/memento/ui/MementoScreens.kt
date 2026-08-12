@@ -2,6 +2,7 @@ package com.lecheeel.memento.ui
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -245,12 +246,12 @@ fun SettingsScreen(
     var keepAliveEnabled by remember(settings.keepAliveEnabled) { mutableStateOf(settings.keepAliveEnabled) }
     var useDynamicColor by remember(settings.useDynamicColor) { mutableStateOf(settings.useDynamicColor) }
 
-    val serverUrlState = remember(settings.serverBaseUrl) { mutableStateOf(settings.serverBaseUrl) }
-    val authTokenState = remember(settings.authToken) { mutableStateOf(settings.authToken) }
-    val encryptionSecretState = remember(settings.encryptionSecret) { mutableStateOf(settings.encryptionSecret) }
-    val keywordFiltersState = remember(settings.keywordFiltersCsv) { mutableStateOf(settings.keywordFiltersCsv) }
+    val serverUrlState = remember { mutableStateOf(settings.serverBaseUrl) }
+    val authTokenState = remember { mutableStateOf(settings.authToken) }
+    val encryptionSecretState = remember { mutableStateOf(settings.encryptionSecret) }
+    val keywordFiltersState = remember { mutableStateOf(settings.keywordFiltersCsv) }
 
-    fun commitAdvancedFields() {
+    fun commitAdvancedFields(notify: Boolean = false) {
         NotificationRepository.update {
             it.copy(
                 serverBaseUrl = serverUrlState.value.trim(),
@@ -258,6 +259,9 @@ fun SettingsScreen(
                 encryptionSecret = encryptionSecretState.value.trim(),
                 keywordFiltersCsv = keywordFiltersState.value.trim(),
             )
+        }
+        if (notify) {
+            Toast.makeText(appContext, "设置已保存", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -337,19 +341,25 @@ fun SettingsScreen(
                 )
                 SettingsTextField(
                     label = "服务器地址",
+                    value = serverUrlState.value,
                     initial = settings.serverBaseUrl,
-                    onCommit = { commitAdvancedFields() },
+                    onValueChange = { serverUrlState.value = it },
+                    onCommit = { value -> if (value != settings.serverBaseUrl) commitAdvancedFields(notify = true) },
                     keyboardType = KeyboardType.Uri,
                 )
                 SettingsTextField(
                     label = "设备令牌",
+                    value = authTokenState.value,
                     initial = settings.authToken,
-                    onCommit = { commitAdvancedFields() },
+                    onValueChange = { authTokenState.value = it },
+                    onCommit = { value -> if (value != settings.authToken) commitAdvancedFields(notify = true) },
                 )
                 SettingsTextField(
                     label = "加密密钥",
+                    value = encryptionSecretState.value,
                     initial = settings.encryptionSecret,
-                    onCommit = { commitAdvancedFields() },
+                    onValueChange = { encryptionSecretState.value = it },
+                    onCommit = { value -> if (value != settings.encryptionSecret) commitAdvancedFields(notify = true) },
                 )
             }
         }
@@ -364,8 +374,10 @@ fun SettingsScreen(
                 )
                 SettingsTextField(
                     label = "敏感关键词（逗号分隔）",
+                    value = keywordFiltersState.value,
                     initial = settings.keywordFiltersCsv,
-                    onCommit = { commitAdvancedFields() },
+                    onValueChange = { keywordFiltersState.value = it },
+                    onCommit = { value -> if (value != settings.keywordFiltersCsv) commitAdvancedFields(notify = true) },
                 )
                 SwitchRow(
                     title = "敏感文本脱敏",
@@ -615,22 +627,23 @@ private fun SwitchRow(
 @Composable
 private fun SettingsTextField(
     label: String,
+    value: String,
     initial: String,
+    onValueChange: (String) -> Unit,
     onCommit: (String) -> Unit,
     modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text,
 ) {
-    var text by remember(initial) { mutableStateOf(initial) }
     OutlinedTextField(
-        value = text,
-        onValueChange = { text = it },
+        value = value,
+        onValueChange = onValueChange,
         label = { Text(label) },
         singleLine = true,
         modifier = modifier
             .fillMaxWidth()
-            .onFocusChanged { if (!it.isFocused && text != initial) onCommit(text.trim()) },
+            .onFocusChanged { if (!it.isFocused && value != initial) onCommit(value.trim()) },
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions(onDone = { onCommit(text.trim()) }),
+        keyboardActions = KeyboardActions(onDone = { onCommit(value.trim()) }),
     )
 }
 

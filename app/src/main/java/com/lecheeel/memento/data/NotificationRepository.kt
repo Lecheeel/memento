@@ -19,6 +19,7 @@ object NotificationRepository {
     private const val KEY_SHOW_SYSTEM_APPS = "show_system_apps"
     private const val KEY_REDACT_SENSITIVE = "redact_sensitive"
     private const val KEY_KEYWORDS = "keyword_filters"
+    private const val KEY_USE_DYNAMIC_COLOR = "use_dynamic_color"
     private const val LEGACY_ALLOWED_PACKAGES = "allowed_packages"
     private const val LEGACY_BLOCKED_PACKAGES = "blocked_packages"
 
@@ -42,6 +43,7 @@ object NotificationRepository {
             if (!contains(KEY_SHOW_SYSTEM_APPS)) edit().putBoolean(KEY_SHOW_SYSTEM_APPS, false).apply()
             if (!contains(KEY_REDACT_SENSITIVE)) edit().putBoolean(KEY_REDACT_SENSITIVE, true).apply()
             if (!contains(KEY_KEYWORDS)) edit().putString(KEY_KEYWORDS, "").apply()
+            if (!contains(KEY_USE_DYNAMIC_COLOR)) edit().putBoolean(KEY_USE_DYNAMIC_COLOR, true).apply()
         }
     }
 
@@ -59,6 +61,7 @@ object NotificationRepository {
             showSystemApps = prefs.getBoolean(KEY_SHOW_SYSTEM_APPS, false),
             redactSensitiveText = prefs.getBoolean(KEY_REDACT_SENSITIVE, true),
             keywordFiltersCsv = prefs.getString(KEY_KEYWORDS, "") ?: "",
+            useDynamicColor = prefs.getBoolean(KEY_USE_DYNAMIC_COLOR, true),
         )
     }
 
@@ -77,6 +80,7 @@ object NotificationRepository {
                 .putBoolean(KEY_SHOW_SYSTEM_APPS, updated.showSystemApps)
                 .putBoolean(KEY_REDACT_SENSITIVE, updated.redactSensitiveText)
                 .putString(KEY_KEYWORDS, updated.keywordFiltersCsv.trim())
+                .putBoolean(KEY_USE_DYNAMIC_COLOR, updated.useDynamicColor)
                 .apply()
         }
     }

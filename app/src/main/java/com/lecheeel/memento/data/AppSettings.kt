@@ -11,5 +11,6 @@ data class AppSettings(
     val showSystemApps: Boolean,
     val redactSensitiveText: Boolean,
     val keywordFiltersCsv: String,
+    val useDynamicColor: Boolean,
 )
 
